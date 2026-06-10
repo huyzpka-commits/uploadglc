@@ -416,6 +416,21 @@ body {
 .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
 .empty-state p { font-size: 14px; }
 
+/* Share input */
+.share-input-row {
+  display: flex;
+  gap: 8px;
+}
+.share-input-row input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--bg);
+  outline: none;
+}
+
 /* Context menu */
 .context-menu {
   position: absolute;

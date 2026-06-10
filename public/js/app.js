@@ -92,7 +92,8 @@ function renderItems(items) {
           <div class="item-meta">${size} ${date}</div>
         </div>
         <div class="item-actions">
-          ${item.type === 'file' ? `<button class="action-btn" onclick="downloadFile('${item.path}')" title="Download">⬇</button>` : ''}
+          ${item.type === 'file' ? `<button class="action-btn" onclick="downloadFile('${item.path}')" title="Download">⬇</button>
+          <button class="action-btn" onclick="shareFile('${item.path}', '${item.name}')" title="Share link">🔗</button>` : ''}
           <button class="action-btn" onclick="renameItem('${item.path}', '${item.name}')" title="Rename">✎</button>
           <button class="action-btn" onclick="deleteItem('${item.path}', '${item.type}')" title="Delete" style="color:var(--danger)">🗑</button>
         </div>
@@ -296,6 +297,36 @@ function closePreview() {
   document.getElementById('previewBody').innerHTML = '';
 }
 
+/* Share */
+async function shareFile(path, name) {
+  try {
+    const data = await post(`${API}/share`, { filePath: path });
+    document.getElementById('shareLinkInput').value = data.shareUrl;
+    document.getElementById('shareModal').classList.add('active');
+  } catch (err) {
+    showError('Share failed: ' + err.message);
+  }
+}
+
+function closeShareModal() {
+  document.getElementById('shareModal').classList.remove('active');
+}
+
+function copyShareLink() {
+  const input = document.getElementById('shareLinkInput');
+  input.select();
+  navigator.clipboard.writeText(input.value).then(() => {
+    const btn = document.querySelector('#shareModal .btn-primary');
+    if (btn) {
+      const oldText = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = oldText, 1500);
+    }
+  }).catch(() => {
+    document.execCommand('copy');
+  });
+}
+
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
@@ -314,7 +345,8 @@ function showContextMenu(e, path, type, name) {
 
   menu.innerHTML = `
     <div class="context-menu-item" onclick="loadFiles('${path}')">📂 Open</div>
-    ${type === 'file' ? `<div class="context-menu-item" onclick="downloadFile('${path}')">⬇ Download</div>` : ''}
+    ${type === 'file' ? `<div class="context-menu-item" onclick="downloadFile('${path}')">⬇ Download</div>
+    <div class="context-menu-item" onclick="shareFile('${path}', '${name}')">🔗 Share link</div>` : ''}
     <div class="context-menu-item" onclick="renameItem('${path}', '${name}')">✎ Rename</div>
     <div class="context-menu-sep"></div>
     <div class="context-menu-item" onclick="deleteItem('${path}', '${type}')" style="color:var(--danger)">🗑 Delete</div>
@@ -355,5 +387,6 @@ document.addEventListener('keydown', (e) => {
     closeUploadModal();
     closeFolderModal();
     closePreview();
+    closeShareModal();
   }
 });

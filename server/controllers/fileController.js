@@ -3,6 +3,18 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 
 const BASE_DIR = path.join(__dirname, '../../uploads');
+const SHARE_DB = path.join(__dirname, '../../.shares.json');
+
+function loadShares() {
+  if (!fs.existsSync(SHARE_DB)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(SHARE_DB, 'utf8'));
+  } catch { return {}; }
+}
+
+function saveShares(shares) {
+  fs.writeFileSync(SHARE_DB, JSON.stringify(shares, null, 2));
+}
 
 function getRelativePath(fullPath) {
   return path.relative(BASE_DIR, fullPath).replace(/\\/g, '/');
@@ -178,6 +190,50 @@ const fileController = {
       ensureDir(BASE_DIR);
       const tree = buildTree(BASE_DIR);
       res.json({ tree });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  // Create a share link for a file
+  share: (req, res) => {
+    try {
+      const { filePath } = req.body;
+      if (!filePath) {
+        return res.status(400).json({ error: 'File path required' });
+      }
+      const fullPath = path.join(BASE_DIR, filePath);
+      if (!fs.existsSync(fullPath)) {
+        return res.status(404).json({ error: 'File not found' });
+      }
+      const shares = loadShares();
+      let existingId = Object.keys(shares).find(id => shares[id].path === filePath);
+      if (!existingId) {
+        existingId = uuidv4();
+        shares[existingId] = { path: filePath, createdAt: new Date().toISOString() };
+        saveShares(shares);
+      }
+      const shareUrl = `${req.protocol}://${req.get('host')}/api/files/shared/${existingId}`;
+      res.json({ shareId: existingId, shareUrl, filePath });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
+
+  // Access shared file
+  accessShared: (req, res) => {
+    try {
+      const { id } = req.params;
+      const shares = loadShares();
+      const share = shares[id];
+      if (!share) {
+        return res.status(404).json({ error: 'Share link not found or expired' });
+      }
+      const fullPath = path.join(BASE_DIR, share.path);
+      if (!fs.existsSync(fullPath)) {
+        return res.status(404).json({ error: 'File no longer exists' });
+      }
+      res.download(fullPath, path.basename(share.path));
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
