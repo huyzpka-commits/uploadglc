@@ -1,4 +1,4 @@
-const API = 'http://localhost:3000/api/files';
+const API = '/api/files';
 let currentFolder = '';
 let currentItems = [];
 let selectedFiles = [];
@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* Fetch helpers */
 async function get(url) {
-  const res = await fetch(url);
+  const res = await fetch(url, { credentials: 'include' });
+  if (res.status === 401) { window.location.href = '/login.html'; return; }
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
@@ -22,14 +23,17 @@ async function post(url, body) {
   const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(body)
   });
+  if (res.status === 401) { window.location.href = '/login.html'; return; }
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
 
 async function postForm(url, formData) {
-  const res = await fetch(url, { method: 'POST', body: formData });
+  const res = await fetch(url, { method: 'POST', credentials: 'include', body: formData });
+  if (res.status === 401) { window.location.href = '/login.html'; return; }
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }

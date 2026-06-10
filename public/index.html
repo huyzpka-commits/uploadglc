@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="app">
+  <div id="authGuard" class="app">
     <aside class="sidebar">
       <div class="brand">
         <span class="logo">📁</span>
@@ -23,6 +23,14 @@
           <div class="progress-fill" id="storageBar"></div>
         </div>
         <p id="storageText">Calculating...</p>
+      </div>
+      <div class="user-card" id="userCard">
+        <div class="user-avatar" id="userAvatar">👤</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Guest</div>
+          <div class="user-email" id="userEmail">—</div>
+        </div>
+        <button class="btn btn-secondary" onclick="logout()" style="margin-top:8px;width:100%;font-size:12px;padding:6px;">Logout</button>
       </div>
     </aside>
 
@@ -104,5 +112,6 @@
   </div>
 
   <script src="js/app.js"></script>
+  <script src="js/auth-guard.js"></script>
 </body>
 </html>

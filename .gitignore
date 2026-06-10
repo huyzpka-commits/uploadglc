@@ -2,5 +2,7 @@ node_modules/
 uploads/
 *.log
 .env
+.users.json
+.shares.json
 .DS_Store
 Thumbs.db

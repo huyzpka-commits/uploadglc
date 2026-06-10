@@ -92,6 +92,24 @@ body {
 }
 .storage-info p { font-size: 12px; margin-top: 6px; color: var(--text-light); }
 
+.user-card {
+  margin-top: auto;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--primary);
+  color: white; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; margin-bottom: 4px;
+}
+.user-name { font-size: 14px; font-weight: 700; }
+.user-email { font-size: 12px; color: var(--text-light); }
+
 /* Main */
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
